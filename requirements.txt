@@ -25,6 +25,7 @@ pyyaml>=6.0
 python-dotenv>=0.21.0
 loguru>=0.7.0
 pydantic>=1.10.0
+pydantic-settings>=2.0.0
 
 # Framework
 kedro>=0.18.0
