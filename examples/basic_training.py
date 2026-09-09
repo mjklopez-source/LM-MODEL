@@ -65,12 +65,12 @@ def build_quantum_model(backend_dict: dict, params_dict: dict = None) -> dict:
     }
 
 
-def train_model(data_dict: dict, model_dict: dict) -> dict:
+def train_model(data: dict, model_dict: dict) -> dict:
     """Simple training step."""
     logger.info("Training quantum model...")
 
-    X = data_dict["X"]
-    y = data_dict["y"]
+    X = data["X"]
+    y = data["y"]
     model = model_dict["model"]
     params = model_dict["params"]
     backend = model_dict["backend"]
@@ -124,15 +124,15 @@ def train_model(data_dict: dict, model_dict: dict) -> dict:
     }
 
 
-def evaluate_model(data_dict: dict, trained_dict: dict) -> dict:
+def evaluate_model(data: dict, trained_model: dict) -> dict:
     """Evaluate the trained model."""
     logger.info("Evaluating model...")
 
-    X = data_dict["X"]
-    y = data_dict["y"]
-    model = trained_dict["model"]
-    params = trained_dict["trained_params"]
-    backend = trained_dict["backend"]
+    X = data["X"]
+    y = data["y"]
+    model = trained_model["model"]
+    params = trained_model["trained_params"]
+    backend = trained_model["backend"]
 
     # Simple accuracy evaluation
     correct = 0
