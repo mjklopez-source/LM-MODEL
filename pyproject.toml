@@ -1,0 +1,144 @@
+[build-system]
+requires = ["setuptools>=65", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "quantum-llm"
+version = "0.1.0"
+description = "Quantum Computing Library for LLM Training"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "QuantumLLM Team", email = "dev@quantumllm.io"}
+]
+keywords = [
+    "quantum-computing",
+    "llm",
+    "machine-learning",
+    "qiskit",
+    "pennylane",
+    "pytorch",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+dependencies = [
+    "qiskit>=0.39.0",
+    "qiskit-machine-learning>=0.6.0",
+    "qiskit-optimization>=0.5.0",
+    "pennylane>=0.31.0",
+    "cirq>=1.0.0",
+    "torch>=2.0.0",
+    "transformers>=4.30.0",
+    "numpy>=1.22.0",
+    "scipy>=1.9.0",
+    "pandas>=1.5.0",
+    "matplotlib>=3.6.0",
+    "plotly>=5.10.0",
+    "scikit-learn>=1.2.0",
+    "pyyaml>=6.0",
+    "python-dotenv>=0.21.0",
+    "loguru>=0.7.0",
+    "tqdm>=4.65.0",
+    "pydantic>=1.10.0",
+    "kedro>=0.18.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.2.0",
+    "pytest-cov>=4.0.0",
+    "pytest-xdist>=3.2.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "flake8>=6.0.0",
+    "mypy>=1.0.0",
+    "pylint>=2.16.0",
+]
+docs = [
+    "sphinx>=5.3.0",
+    "sphinx-rtd-theme>=1.2.0",
+    "sphinx-autodoc-typehints>=1.22.0",
+    "myst-parser>=0.18.0",
+]
+jupyter = [
+    "jupyter>=1.0.0",
+    "notebook>=6.5.0",
+    "ipywidgets>=8.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/quantum-llm/quantum-llm"
+Documentation = "https://quantum-llm.readthedocs.io"
+Repository = "https://github.com/quantum-llm/quantum-llm.git"
+"Bug Tracker" = "https://github.com/quantum-llm/quantum-llm/issues"
+
+[tool.setuptools]
+packages = ["quantum_llm"]
+
+[tool.setuptools.package-dir]
+quantum_llm = "src/quantum_llm"
+
+[tool.black]
+line-length = 100
+target-version = ['py38', 'py39', 'py10', 'py11']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 100
+skip_glob = ["*/migrations/*"]
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = "-v --cov=src/quantum_llm --cov-report=html --cov-report=term-missing"
+
+[tool.coverage.run]
+branch = true
+source = ["src/quantum_llm"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]

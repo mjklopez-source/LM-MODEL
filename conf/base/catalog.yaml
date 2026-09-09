@@ -1,0 +1,35 @@
+# Data catalog for QuantumLLM
+
+# Input datasets
+raw_data:
+  type: csv
+  filepath: data/raw/input.csv
+  load_args:
+    index_col: 0
+
+# Processed data
+training_data:
+  type: pickle
+  filepath: data/processed/training.pkl
+
+test_data:
+  type: pickle
+  filepath: data/processed/test.pkl
+
+# Models
+quantum_model:
+  type: pickle
+  filepath: outputs/models/quantum_model.pkl
+
+trained_model:
+  type: pickle
+  filepath: outputs/models/trained_model.pkl
+
+# Metrics
+training_metrics:
+  type: json
+  filepath: outputs/metrics/training.json
+
+evaluation_metrics:
+  type: json
+  filepath: outputs/metrics/evaluation.json

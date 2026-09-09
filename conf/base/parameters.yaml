@@ -1,0 +1,49 @@
+# Base parameters for QuantumLLM
+
+# Quantum configuration
+quantum:
+  backend: qiskit
+  simulator: qasm_simulator
+  n_qubits: 4
+  n_layers: 2
+
+# Model configuration
+model:
+  type: vqc  # Variational Quantum Classifier
+  ansatz: basic
+  encoding: angle
+
+# Training configuration
+training:
+  batch_size: 32
+  learning_rate: 0.01
+  epochs: 10
+  optimizer: adam
+  loss_function: mse
+
+# Optimizer configuration
+optimizer:
+  name: adam
+  beta1: 0.9
+  beta2: 0.999
+  epsilon: 1e-8
+
+# Data configuration
+data:
+  train_ratio: 0.8
+  validation_ratio: 0.1
+  test_ratio: 0.1
+  random_seed: 42
+
+# Logging configuration
+logging:
+  level: INFO
+  file: null
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+# Execution
+execution:
+  device: cpu
+  num_workers: 4
+  seed: 42
+  mixed_precision: false

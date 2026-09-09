@@ -1,0 +1,41 @@
+# Core dependencies for QuantumLLM
+
+# Quantum Computing
+qiskit>=0.39.0
+qiskit-machine-learning>=0.6.0
+pennylane>=0.31.0
+cirq>=1.0.0
+
+# Machine Learning
+torch>=2.0.0
+transformers>=4.30.0
+scikit-learn>=1.2.0
+
+# Scientific Computing
+numpy>=1.22.0
+scipy>=1.9.0
+pandas>=1.5.0
+
+# Visualization
+matplotlib>=3.6.0
+plotly>=5.10.0
+
+# Configuration & Logging
+pyyaml>=6.0
+python-dotenv>=0.21.0
+loguru>=0.7.0
+pydantic>=1.10.0
+
+# Framework
+kedro>=0.18.0
+
+# Utilities
+tqdm>=4.65.0
+
+# Development
+pytest>=7.2.0
+pytest-cov>=4.0.0
+black>=23.0.0
+isort>=5.12.0
+flake8>=6.0.0
+mypy>=1.0.0
