@@ -16,11 +16,11 @@ except ImportError:
 class QiskitBackend(QuantumBackend):
     """Qiskit quantum backend implementation."""
 
-    def __init__(self, simulator: str = "qasm_simulator", **kwargs):
+    def __init__(self, simulator: str = "statevector", **kwargs):
         """Initialize Qiskit backend.
 
         Args:
-            simulator: Simulator type (qasm_simulator, statevector_simulator, unitary_simulator)
+            simulator: Simulator type (statevector, automatic, density_matrix, etc.)
             **kwargs: Additional configuration
         """
         if not HAS_QISKIT:
@@ -28,7 +28,14 @@ class QiskitBackend(QuantumBackend):
 
         super().__init__("qiskit", **kwargs)
         self.simulator_type = simulator
-        self.simulator = AerSimulator(method=simulator.replace("_simulator", ""))
+        # Map old names to new Aer simulator methods
+        method_map = {
+            "qasm_simulator": "automatic",
+            "statevector_simulator": "statevector",
+            "unitary_simulator": "unitary",
+        }
+        method = method_map.get(simulator, simulator)
+        self.simulator = AerSimulator(method=method)
 
     def create_circuit(self, n_qubits: int, name: str = "circuit") -> QuantumCircuit:
         """Create a quantum circuit."""
