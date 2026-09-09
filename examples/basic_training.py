@@ -34,7 +34,7 @@ def prepare_backend() -> dict:
     """Prepare quantum backend."""
     logger.info("Preparing quantum backend...")
 
-    backend = QiskitBackend(simulator="qasm_simulator")
+    backend = QiskitBackend(simulator="statevector")
     logger.info(f"Using backend: {backend.name}")
 
     return {"backend": backend}
