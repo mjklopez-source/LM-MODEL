@@ -134,3 +134,6 @@ conf/credentials.yaml
 *.tar.gz
 *.zip
 .env.local
+
+# TensorBoard logs
+APRENDER_LM/logs/
