@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantumLLM Pipeline Visualizer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .visualization {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            min-height: 600px;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .node {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .node rect {
+            stroke-width: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .node:hover rect {
+            filter: brightness(1.1);
+            stroke-width: 3px;
+        }
+
+        .node text {
+            pointer-events: none;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .link {
+            fill: none;
+            stroke: #999;
+            stroke-width: 2px;
+            stroke-dasharray: 5, 5;
+            marker-end: url(#arrowhead);
+            transition: all 0.3s ease;
+        }
+
+        .link:hover {
+            stroke: #667eea;
+            stroke-width: 3px;
+            stroke-dasharray: none;
+        }
+
+        .link-label {
+            font-size: 11px;
+            fill: #666;
+            background: white;
+            padding: 2px 4px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .stat-card .label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-card .value {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .node-details {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .node-details h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        .node-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .node-item {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .node-item:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-color: #667eea;
+        }
+
+        .node-item .name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .node-item .color-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            display: inline-block;
+        }
+
+        .node-item .inputs, .node-item .outputs {
+            font-size: 12px;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .node-item .inputs strong, .node-item .outputs strong {
+            color: #667eea;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .input-tag, .output-tag {
+            display: inline-block;
+            background: #e9ecef;
+            padding: 2px 8px;
+            border-radius: 3px;
+            margin-right: 4px;
+            margin-bottom: 4px;
+            font-size: 11px;
+            color: #495057;
+        }
+
+        .input-tag {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .output-tag {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .legend {
+            display: flex;
+            gap: 30px;
+            margin-top: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔬 QuantumLLM Pipeline Visualizer</h1>
+            <p>Interactive visualization of your quantum machine learning training pipeline</p>
+        </div>
+
+        <div class="content">
+            <div class="visualization">
+                <svg id="pipeline-graph"></svg>
+            </div>
+
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="label">Total Nodes</div>
+                    <div class="value">5</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Pipeline Stages</div>
+                    <div class="value">5</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Data Connections</div>
+                    <div class="value">5</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Framework</div>
+                    <div class="value">Kedro-Style</div>
+                </div>
+            </div>
+
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #667eea;"></div>
+                    <span>Data Loading</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #764ba2;"></div>
+                    <span>Backend Setup</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #f093fb;"></div>
+                    <span>Model Building</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #4facfe;"></div>
+                    <span>Training</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #43e97b;"></div>
+                    <span>Evaluation</span>
+                </div>
+            </div>
+
+            <div class="node-details">
+                <h3>📊 Pipeline Nodes</h3>
+                <div class="node-list" id="node-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const pipelineData = {
+            nodes: [
+                {
+                    id: "load_data",
+                    name: "Load Data",
+                    description: "Generate synthetic training data",
+                    inputs: [],
+                    outputs: ["data"],
+                    color: "#667eea",
+                    x: 100,
+                    y: 150
+                },
+                {
+                    id: "prepare_backend",
+                    name: "Prepare Backend",
+                    description: "Initialize quantum backend (Qiskit)",
+                    inputs: [],
+                    outputs: ["backend_dict"],
+                    color: "#764ba2",
+                    x: 100,
+                    y: 350
+                },
+                {
+                    id: "build_quantum_model",
+                    name: "Build Quantum Model",
+                    description: "Create variational quantum circuit",
+                    inputs: ["backend_dict"],
+                    outputs: ["model_dict"],
+                    color: "#f093fb",
+                    x: 350,
+                    y: 250
+                },
+                {
+                    id: "train_model",
+                    name: "Train Model",
+                    description: "Execute training loop with gradient updates",
+                    inputs: ["data", "model_dict"],
+                    outputs: ["trained_model"],
+                    color: "#4facfe",
+                    x: 600,
+                    y: 200
+                },
+                {
+                    id: "evaluate_model",
+                    name: "Evaluate Model",
+                    description: "Calculate accuracy on test data",
+                    inputs: ["data", "trained_model"],
+                    outputs: ["evaluation"],
+                    color: "#43e97b",
+                    x: 850,
+                    y: 250
+                }
+            ],
+            links: [
+                { source: "load_data", target: "train_model", label: "data" },
+                { source: "prepare_backend", target: "build_quantum_model", label: "backend_dict" },
+                { source: "build_quantum_model", target: "train_model", label: "model_dict" },
+                { source: "train_model", target: "evaluate_model", label: "trained_model" },
+                { source: "load_data", target: "evaluate_model", label: "data" }
+            ]
+        };
+
+        // Draw graph
+        const svg = d3.select("#pipeline-graph");
+        const width = svg.node().parentElement.clientWidth;
+        const height = 600;
+
+        svg.attr("viewBox", [0, 0, width, height]);
+
+        // Add arrow marker
+        svg.append("defs").append("marker")
+            .attr("id", "arrowhead")
+            .attr("markerWidth", 10)
+            .attr("markerHeight", 10)
+            .attr("refX", 9)
+            .attr("refY", 3)
+            .attr("orient", "auto")
+            .append("polygon")
+            .attr("points", "0 0, 10 3, 0 6")
+            .attr("fill", "#999");
+
+        // Draw links
+        const links = svg.selectAll(".link")
+            .data(pipelineData.links)
+            .enter()
+            .append("g")
+            .attr("class", "link-group");
+
+        links.append("line")
+            .attr("class", "link")
+            .attr("x1", d => {
+                const source = pipelineData.nodes.find(n => n.id === d.source);
+                return source.x + 80;
+            })
+            .attr("y1", d => {
+                const source = pipelineData.nodes.find(n => n.id === d.source);
+                return source.y + 30;
+            })
+            .attr("x2", d => {
+                const target = pipelineData.nodes.find(n => n.id === d.target);
+                return target.x;
+            })
+            .attr("y2", d => {
+                const target = pipelineData.nodes.find(n => n.id === d.target);
+                return target.y + 30;
+            });
+
+        // Draw nodes
+        const nodes = svg.selectAll(".node")
+            .data(pipelineData.nodes)
+            .enter()
+            .append("g")
+            .attr("class", "node")
+            .attr("transform", d => `translate(${d.x},${d.y})`);
+
+        nodes.append("rect")
+            .attr("width", 80)
+            .attr("height", 60)
+            .attr("rx", 6)
+            .attr("fill", d => d.color)
+            .attr("stroke", d => d.color)
+            .attr("opacity", 0.9);
+
+        nodes.append("text")
+            .attr("text-anchor", "middle")
+            .attr("dy", "-0.5em")
+            .attr("x", 40)
+            .attr("y", 30)
+            .attr("fill", "white")
+            .text(d => {
+                const words = d.name.split(" ");
+                return words.join("\n");
+            })
+            .style("white-space", "pre");
+
+        // Populate node details
+        const nodeList = document.getElementById("node-list");
+        pipelineData.nodes.forEach((node, index) => {
+            const item = document.createElement("div");
+            item.className = "node-item";
+            item.innerHTML = `
+                <div class="name">
+                    <span class="color-indicator" style="background: ${node.color};"></span>
+                    ${node.name}
+                </div>
+                <div style="color: #666; font-size: 12px; margin: 8px 0;">${node.description}</div>
+                ${node.inputs.length > 0 ? `
+                    <div class="inputs">
+                        <strong>📥 Inputs:</strong>
+                        ${node.inputs.map(inp => `<span class="input-tag">${inp}</span>`).join("")}
+                    </div>
+                ` : ""}
+                <div class="outputs">
+                    <strong>📤 Outputs:</strong>
+                    ${node.outputs.map(out => `<span class="output-tag">${out}</span>`).join("")}
+                </div>
+            `;
+            nodeList.appendChild(item);
+        });
+    </script>
+</body>
+</html>
