@@ -137,3 +137,4 @@ conf/credentials.yaml
 
 # TensorBoard logs
 APRENDER_LM/logs/
+coverage.json
